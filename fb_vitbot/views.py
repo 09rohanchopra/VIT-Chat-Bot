@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
 import logging
+from response import get_response
 
 logger = logging.getLogger(__name__)
 
@@ -48,17 +49,21 @@ class VitBotView(generic.View):
 
 
 def post_facebook_message(fbid, received_message):           
+    
+    response = get_response(received_message,fbid)
+    send_message = response['text']
+
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=EAADljwd55ogBAJSRkD4JJZBklUPD7AKNb7g5FcTbZASrjJDBifAfz6y3OLJcAGQrYEcHhWAgfqduegl7rlL770u3xU21QTvzpVWtDsWajFguush2bDimEdorL4iT3ZC0kDz6G8khBzXbesxsgO7Spqrwm3aLbS26oCXATOPGAZDZD' 
     
 
     user_details_url = "https://graph.facebook.com/v2.6/%s"%fbid
     user_details_params = {'fields':'first_name,last_name,profile_pic', 'access_token':'EAADljwd55ogBAJSRkD4JJZBklUPD7AKNb7g5FcTbZASrjJDBifAfz6y3OLJcAGQrYEcHhWAgfqduegl7rlL770u3xU21QTvzpVWtDsWajFguush2bDimEdorL4iT3ZC0kDz6G8khBzXbesxsgO7Spqrwm3aLbS26oCXATOPGAZDZD'}
     user_details = requests.get(user_details_url, user_details_params).json()
-    received_message = user_details['first_name']+' says: ' + received_message
+    #received_message = user_details['first_name']+' says: ' + received_message
 
 
 
-    response_msg = json.dumps({"recipient":{"id":fbid}, "message":{"text":received_message}})
+    response_msg = json.dumps({"recipient":{"id":fbid}, "message":{"text":send_message}})
     status = requests.post(post_message_url, headers={"Content-Type": "application/json"},data=response_msg)
     logger.debug(status.json())
 
