@@ -5,7 +5,9 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
 import logging
-from response import get_response
+
+from fb_vitbot.response import get_response
+#from response import get_response
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +53,8 @@ class VitBotView(generic.View):
 def post_facebook_message(fbid, received_message):           
     
     response = get_response(received_message,fbid)
-    send_message = response['text']
+
+    send_message = response['text'].decode('utf-8')
 
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=EAADljwd55ogBAJSRkD4JJZBklUPD7AKNb7g5FcTbZASrjJDBifAfz6y3OLJcAGQrYEcHhWAgfqduegl7rlL770u3xU21QTvzpVWtDsWajFguush2bDimEdorL4iT3ZC0kDz6G8khBzXbesxsgO7Spqrwm3aLbS26oCXATOPGAZDZD' 
     
