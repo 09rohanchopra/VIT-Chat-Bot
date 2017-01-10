@@ -1,3 +1,4 @@
+import requests
 from wit import Wit
 import logging
 import json
@@ -14,6 +15,7 @@ def send(request, response):
 	text = response['text']
 	global final_response
 	final_response = response
+	post_facebook_message(fb_id,text.decode('utf-8'))
 	
 
 def first_entity_value(entities, entity):
@@ -36,9 +38,10 @@ def get_spotlight(request):
 	len_acad = len(data['spotlight']['academics'])
 	text = '\n'
 	for i in range(0,len_acad):
-		text = text + data['spotlight']['academics'][i]['text'] + '\n'
+		text = text+'* ' + data['spotlight']['academics'][i]['text'] +'\n' + 'Link: https://vtop.vit.ac.in/'+data['spotlight']['academics'][i]['url'] + '\n'
 
-	context['spotlight'] = text
+	context['academics'] = text
+
 
 	return context
 
@@ -58,9 +61,10 @@ def get_attendance(request):
 
 
 def get_response(received_message,fb_id):
-	client.run_actions(session_id = fb_id, message = received_message)
+	response =  client.run_actions(session_id = fb_id, message = received_message)
 	#TODO: Send request (session id) as well
-	return final_response
+	logger.debug(response)
+	#return final_response
 
 
 actions = {
@@ -70,4 +74,18 @@ actions = {
 }
 
 client = Wit(access_token=access_token, actions=actions)
+
+def post_facebook_message(fbid, received_message):           
+
+    post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=EAADljwd55ogBAJSRkD4JJZBklUPD7AKNb7g5FcTbZASrjJDBifAfz6y3OLJcAGQrYEcHhWAgfqduegl7rlL770u3xU21QTvzpVWtDsWajFguush2bDimEdorL4iT3ZC0kDz6G8khBzXbesxsgO7Spqrwm3aLbS26oCXATOPGAZDZD'
+    
+
+    user_details_url = "https://graph.facebook.com/v2.6/%s"%fbid
+    user_details_params = {'fields':'first_name,last_name,profile_pic', 'access_token':'EAADljwd55ogBAJSRkD4JJZBklUPD7AKNb7g5FcTbZASrjJDBifAfz6y3OLJcAGQrYEcHhWAgfqduegl7rlL770u3xU21QTvzpVWtDsWajFguush2bDimEdorL4iT3ZC0kDz6G8khBzXbesxsgO7Spqrwm3aLbS26oCXATOPGAZDZD'}
+
+    user_details = requests.get(user_details_url, user_details_params).json()
+
+    response_msg = json.dumps({"recipient":{"id":fbid}, "message":{"text":received_message}})
+    status = requests.post(post_message_url, headers={"Content-Type": "application/json"},data=response_msg)
+    logger.debug(status.json())
 
