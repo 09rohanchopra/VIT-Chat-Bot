@@ -1,6 +1,7 @@
 from wit import Wit
 import logging
-
+import json
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,20 @@ def first_entity_value(entities, entity):
         return None
     return val['value'] if isinstance(val, dict) else val
 
+def get_spotlight(request):
+
+	context = request['context']
+
+	raw_data = os.popen("curl https://vitacademics-rel.herokuapp.com/api/v2/vellore/spotlight").read()
+	data = json.loads(raw_data)
+	len_acad = len(data['spotlight']['academics'])
+	text = '\n'
+	for i in range(0,len_acad):
+		text = text + data['spotlight']['academics'][i]['text'] + '\n'
+
+	context['spotlight'] = text
+
+	return context
 
 def get_attendance(request):
 	context = request['context']
@@ -44,9 +59,6 @@ def get_attendance(request):
 
 def get_response(received_message,fb_id):
 	client.run_actions(session_id = fb_id, message = received_message)
-	if 'text' not in final_response:
-                final_response['text']='I got nothing'
-	#TODO: create separate function
 	#TODO: Send request (session id) as well
 	return final_response
 
@@ -54,6 +66,7 @@ def get_response(received_message,fb_id):
 actions = {
     'send': send,
     'getAttendance': get_attendance,
+    'getSpotlight': get_spotlight,
 }
 
 client = Wit(access_token=access_token, actions=actions)
