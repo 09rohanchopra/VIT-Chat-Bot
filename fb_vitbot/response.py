@@ -42,6 +42,23 @@ def get_spotlight(request):
 
 	context['academics'] = text
 
+	len_coe = len(data['spotlight']['coe'])
+	text = '\n'
+	for i in range(0,len_coe):
+		text = text+'* ' + data['spotlight']['coe'][i]['text'] +'\n'
+
+	context['coe'] = text
+
+	len_res = len(data['spotlight']['research'])
+	text = '\n'
+	for i in range(0,len_res):
+		text = text+'* ' + data['spotlight']['research'][i]['text'] +'\n'
+
+
+	context['research'] = text
+
+	#TODO: Add coe and research links (check for missing and incomplete links)
+
 
 	return context
 
