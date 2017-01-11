@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'vitbot.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'vitbot',
+	'USER': 'admin',
+	'PASSWORD': 'g41gnBD3h7TCI64',
+	'HOST': 'localhost',
+	'PORT': '',
     }
 }
 
