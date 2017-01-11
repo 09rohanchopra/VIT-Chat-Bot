@@ -36,26 +36,33 @@ def get_spotlight(request):
 	raw_data = os.popen("curl https://vitacademics-rel.herokuapp.com/api/v2/vellore/spotlight").read()
 	data = json.loads(raw_data)
 	len_acad = len(data['spotlight']['academics'])
-	text = '\n'
-	for i in range(0,len_acad):
-		text = text+'* ' + data['spotlight']['academics'][i]['text'] +'\n' + 'Link: https://vtop.vit.ac.in/'+data['spotlight']['academics'][i]['url'] + '\n'
 
-	context['academics'] = text
+	if(len_acad>0):
+		text = 'Academics: \n'
+		for i in range(0,len_acad):
+			text = text+'* ' + data['spotlight']['academics'][i]['text'] +'\n' + 'Link: https://vtop.vit.ac.in/'+data['spotlight']['academics'][i]['url'] + '\n'
+
+		context['academics'] = text
 
 	len_coe = len(data['spotlight']['coe'])
-	text = '\n'
-	for i in range(0,len_coe):
-		text = text+'* ' + data['spotlight']['coe'][i]['text'] +'\n'
 
-	context['coe'] = text
+	if(len_coe>0):
+		text = 'COE: \n'
+		for i in range(0,len_coe):
+			text = text+'* ' + data['spotlight']['coe'][i]['text'] +'\n'
+
+		context['coe'] = text
 
 	len_res = len(data['spotlight']['research'])
-	text = '\n'
-	for i in range(0,len_res):
-		text = text+'* ' + data['spotlight']['research'][i]['text'] +'\n'
+	if(len_res>0):
+		text = 'Research: \n'
+		for i in range(0,len_res):
+			text = text+'* ' + data['spotlight']['research'][i]['text'] +'\n'
 
+		context['research'] = text
 
-	context['research'] = text
+	if(len_acad == len_coe == len_res == 0):
+		context['academics'] = 'Nothing in spotlight section'
 
 	#TODO: Add coe and research links (check for missing and incomplete links)
 
