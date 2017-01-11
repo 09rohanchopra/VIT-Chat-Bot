@@ -32,6 +32,7 @@ def first_entity_value(entities, entity):
 def get_spotlight(request):
 
 	context = request['context']
+	fb_id = request['session_id']
 
 	raw_data = os.popen("curl https://vitacademics-rel.herokuapp.com/api/v2/vellore/spotlight").read()
 	data = json.loads(raw_data)
@@ -42,7 +43,7 @@ def get_spotlight(request):
 		for i in range(0,len_acad):
 			text = text+'* ' + data['spotlight']['academics'][i]['text'] +'\n' + 'Link: https://vtop.vit.ac.in/'+data['spotlight']['academics'][i]['url'] + '\n'
 
-		context['academics'] = text
+		post_facebook_message(fb_id,text)
 
 	len_coe = len(data['spotlight']['coe'])
 
@@ -51,7 +52,7 @@ def get_spotlight(request):
 		for i in range(0,len_coe):
 			text = text+'* ' + data['spotlight']['coe'][i]['text'] +'\n'
 
-		context['coe'] = text
+		post_facebook_message(fb_id,text)
 
 	len_res = len(data['spotlight']['research'])
 	if(len_res>0):
@@ -59,10 +60,10 @@ def get_spotlight(request):
 		for i in range(0,len_res):
 			text = text+'* ' + data['spotlight']['research'][i]['text'] +'\n'
 
-		context['research'] = text
+		post_facebook_message(fb_id,text)
 
 	if(len_acad == len_coe == len_res == 0):
-		context['academics'] = 'Nothing in spotlight section'
+		post_facebook_message(fb_id,'No announcement in spotlight section')
 
 	#TODO: Add coe and research links (check for missing and incomplete links)
 
