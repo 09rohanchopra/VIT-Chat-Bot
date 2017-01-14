@@ -3,7 +3,7 @@ from wit import Wit
 import logging
 import json
 import os
-from fb_vitbot import Student as stu
+from fb_vitbot.models import Student as stu
 
 logger = logging.getLogger(__name__)
 
@@ -83,15 +83,15 @@ def get_attendance(request):
 	dob = student.dob
 	number = student.number
 	student.data,valid = vit_academics_api(regno = regno, dob = dob, number = number)
-	request['valid'] = valid
+	context['login'] = valid
 	#logger.debug(request)
 	context['attendance'] = 0
-	if valid == 0 && subject:
+	if valid == 0 and subject:
 		len_course = student.data['courses']
 		for i in range(0,len_course):
 			if student.data['courses'][i]['course_title'] == subject:
 				context['attendance'] = student.data['courses'][i]['attendance']['attendance_percentage']
-	else if valid == 0 && !subject:
+	elif valid == 0 and not subject:
 		for i in range(0,len_course):
 			len_course = student.data['courses']
 			for i in range(0,len_course):
@@ -109,23 +109,27 @@ def get_response(received_message,fb_id):
 def vit_academics_api(regno,dob,number):
 	raw_data = os.popen("curl --data \"regno=14BCE0749&dob=09051996&mobile=9873429790\" https://vitacademics-rel.herokuapp.com/api/v2/vellore/login").read()
 	data = json.loads(raw_data)
-	len_acad = len(data['spotlight']['academics'])
 	code = data['status']['code']
+	logger.debug(code)
+
 	if code == 0:
 		raw_data = os.popen("curl --data \"regno=14BCE0749&dob=09051996&mobile=9873429790\" https://vitacademics-rel.herokuapp.com/api/v2/vellore/refresh").read()
 		data = json.loads(raw_data)
 		valid = 1
-	else if code == 12:
+	elif code == 12:
 		data = ''
 		valid = 0
 	else:
 		data = ''
 		valid = 2
+	logger.debug(valid)
 	return data,valid
 
 
 def get_data(request):
 	fb_id = request['session_id']
+	context = request['context']
+
 	student = stu.objects.get(fb_id=fb_id)
 	regno = student.regno
 	dob = student.dob
@@ -143,11 +147,18 @@ def del_data(request):
 
 def store_data(request):
 	fb_id = request['session_id']
-	student = stu(regno = regno,dob = dob, number = number, fb_id = fb_id)
-	student.data,valid = vit_academics_api(regno = regno, dob = dob, number = number)
-	context['valid'] = valid
+	entities = request['entities']
+	context = request['context']
 
+	regno = first_entity_value(entities,'regno')
+	dob = first_entity_value(entities,'dob')
+	number = first_entity_value(entities,'phoneNumber')
+	student = stu(regno = regno,dob = dob, number = number, fb_id = fb_id)
+	logger.debug(regno+" " +dob+" "+number+" "+fb_id)
+	student.data,valid = vit_academics_api(regno = regno, dob = dob, number = number)
 	student.save()
+	context['login'] = valid
+	logger.debug(valid+10)
 	return context
 
 actions = {
