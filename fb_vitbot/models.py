@@ -6,5 +6,5 @@ class Student(models.Model):
 	regno = models.CharField(max_length=9)
 	dob = models.CharField(max_length=8)
 	number = models.CharField(max_length=10)
-	fb_id = models.CharField(max_length=50)
+	fb_id = models.CharField(max_length=50,unique=True)
 	data = models.CharField(max_length=1024)

@@ -83,6 +83,8 @@ def get_attendance(request):
 	dob = student.dob
 	number = student.number
 	student.data,valid = vit_academics_api(regno = regno, dob = dob, number = number)
+	student.save(['data'])
+
 	context['login'] = valid
 	#logger.debug(request)
 	context['attendance'] = 0
@@ -137,7 +139,7 @@ def get_data(request):
 
 	student.data,valid = vit_academics_api(regno = regno, dob = dob, number = number)
 	context['login'] = valid
-	student.save()
+	student.save(['data'])
 	return context
     
 def del_data(request):
