@@ -3,6 +3,7 @@ from wit import Wit
 import logging
 import json
 import os
+import re
 from fb_vitbot.models import Student as stu
 
 logger = logging.getLogger(__name__)
@@ -83,22 +84,31 @@ def get_attendance(request):
 	dob = student.dob
 	number = student.number
 	student.data,valid = vit_academics_api(regno = regno, dob = dob, number = number)
-	student.save()
-
+	logger.debug(student.data)
 	context['login'] = valid
 	#logger.debug(request)
 	context['attendance'] = 0
-	if valid == 0 and subject:
+	#TODO: Bug report for academics api, sometimes courses and withdrawn courses not shown ie array size is zero even after successful execution
+	#TODO: Fix multiple login db error
+	#TODO: Check cause of error code 12
+	#TODO: Figure out labs
+	if valid == 1 and subject:
+		logger.debug(subject)
 		len_course = len(student.data['courses'])
+		logger.debug("Courses-")
+		logger.debug(len_course)
 		for i in range(0,len_course):
-			if student.data['courses'][i]['course_title'] == subject:
+			logger.debug(subject)
+			logger.debug(student.data['courses'][i]['course_title'])
+			if re.search(subject, student.data['courses'][i]['course_title'], re.IGNORECASE):
 				context['attendance'] = student.data['courses'][i]['attendance']['attendance_percentage']
-	elif valid == 0 and not subject:
+	elif valid == 1 and not subject:
 		for i in range(0,len_course):
 			len_course = student.data['courses']
 			for i in range(0,len_course):
 				context['attendance'] = context['attendance'] + student.data['courses'][i]['attendance']['attendance_percentage']
 			context['attendance'] = context['attendance']/len_course
+	student.save()
 	return context
 
 
