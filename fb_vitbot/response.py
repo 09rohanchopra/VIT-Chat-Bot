@@ -83,13 +83,13 @@ def get_attendance(request):
 	dob = student.dob
 	number = student.number
 	student.data,valid = vit_academics_api(regno = regno, dob = dob, number = number)
-	student.save(['data'])
+	student.save()
 
 	context['login'] = valid
 	#logger.debug(request)
 	context['attendance'] = 0
 	if valid == 0 and subject:
-		len_course = student.data['courses']
+		len_course = len(student.data['courses'])
 		for i in range(0,len_course):
 			if student.data['courses'][i]['course_title'] == subject:
 				context['attendance'] = student.data['courses'][i]['attendance']['attendance_percentage']
@@ -139,7 +139,7 @@ def get_data(request):
 
 	student.data,valid = vit_academics_api(regno = regno, dob = dob, number = number)
 	context['login'] = valid
-	student.save(['data'])
+	student.save()
 	return context
     
 def del_data(request):
