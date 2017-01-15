@@ -119,13 +119,13 @@ def get_response(received_message,fb_id):
 	#return final_response
 
 def vit_academics_api(regno,dob,number):
-	raw_data = os.popen("curl --data \"regno=14BCE0749&dob=09051996&mobile=9873429790\" https://vitacademics-rel.herokuapp.com/api/v2/vellore/login").read()
+	raw_data = os.popen("curl --data \"regno="+regno+"&dob="+dob+"&mobile="+number+"\" https://vitacademics-rel.herokuapp.com/api/v2/vellore/login").read()
 	data = json.loads(raw_data)
 	code = data['status']['code']
 	logger.debug(code)
 
 	if code == 0:
-		raw_data = os.popen("curl --data \"regno=14BCE0749&dob=09051996&mobile=9873429790\" https://vitacademics-rel.herokuapp.com/api/v2/vellore/refresh").read()
+		raw_data = os.popen("curl --data \"regno="+regno+"&dob="+dob+"&mobile="+number+"\" https://vitacademics-rel.herokuapp.com/api/v2/vellore/refresh").read()
 		data = json.loads(raw_data)
 		valid = 1
 	elif code == 12:
